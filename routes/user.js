@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { connection } from "../connection.js";
-import { OmokGame } from "../game.js";
 
 const userRouter = Router();
 
