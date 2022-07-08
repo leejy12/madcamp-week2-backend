@@ -38,13 +38,13 @@ userRouter.post("/signup/email/:email/nickname/:nickname/school/:school", (req, 
         connection.query(
           `INSERT INTO users VALUE(NULL, "${req.params.email}", "${req.params.nickname}", "${req.params.school}", 1000);`,
           (error, rows) => {
-            if (error) res.status(500).send("1");
+            if (error) res.status(500).send(error);
             else res.send("0");
           }
         );
       } else {
         // The user provided nickname already exists in database.
-        res.status(400).send("2");
+        res.status(400).send("1");
       }
     }
   );
@@ -52,7 +52,7 @@ userRouter.post("/signup/email/:email/nickname/:nickname/school/:school", (req, 
 
 userRouter.delete("/delete/email/:email", (req, res) => {
   connection.query(`DELETE FROM users WHERE email = "${req.params.email}"`, (error, result) => {
-    if (error) res.status(500).send("NO");
+    if (error) res.status(500).send(error);
     else {
       if (result.affectedRows === 1) res.send("YES");
       else res.status(404).send("NO");
