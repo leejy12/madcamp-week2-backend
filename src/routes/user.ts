@@ -3,6 +3,16 @@ import { connection } from "../connection.js";
 
 const userRouter: Router = Router();
 
+userRouter.get("/email/:email", (req, res) => {
+  connection.query(
+    `SELECT email, nickname, school, elo_rating FROM users WHERE email = "${req.params.email}";`,
+    (error, rows, fields) => {
+      if (error) return res.status(500).send(error);
+      else res.send(rows);
+    }
+  );
+});
+
 userRouter.get("/login/email/:email", (req, res) => {
   connection.query(
     `SELECT id FROM users WHERE email LIKE "${req.params.email}";`,
