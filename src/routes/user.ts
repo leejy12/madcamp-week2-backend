@@ -8,7 +8,8 @@ userRouter.get("/email/:email", (req, res) => {
     `SELECT email, nickname, school, elo_rating FROM users WHERE email = "${req.params.email}";`,
     (error, rows, fields) => {
       if (error) return res.status(500).send(error);
-      else res.send(rows);
+      if (rows.length === 1) res.send(rows);
+      else res.status(404).send("NO");
     }
   );
 });
@@ -20,8 +21,8 @@ userRouter.get("/login/email/:email", (req, res) => {
       if (error) {
         return res.status(500).send(error);
       } else {
-        if (rows.length == 1) res.send("YES");
-        else res.send("NO");
+        if (rows.length === 1) res.send("YES");
+        else res.status(404).send("NO");
       }
     }
   );
@@ -33,19 +34,30 @@ userRouter.post("/signup/email/:email/nickname/:nickname/school/:school", (req, 
     `SELECT id FROM users WHERE nickname = "${req.params.nickname}"`,
     (error, rows, fields) => {
       if (rows.length === 0) {
-        // If it is a unique id, insert into database
+        // If it is a unique nickname, insert into database
         connection.query(
           `INSERT INTO users VALUE(NULL, "${req.params.email}", "${req.params.nickname}", "${req.params.school}", 1000);`,
           (error, rows) => {
-            if (rows !== undefined) res.send("0");
-            else res.send("1");
+            if (error) res.status(500).send("1");
+            else res.send("0");
           }
         );
       } else {
-        res.send("2");
+        // The user provided nickname already exists in database.
+        res.status(400).send("2");
       }
     }
   );
+});
+
+userRouter.delete("/delete/email/:email", (req, res) => {
+  connection.query(`DELETE FROM users WHERE email = "${req.params.email}"`, (error, result) => {
+    if (error) res.status(500).send("NO");
+    else {
+      if (result.affectedRows === 1) res.send("YES");
+      else res.status(404).send("NO");
+    }
+  });
 });
 
 export default userRouter;
