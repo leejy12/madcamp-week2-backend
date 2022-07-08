@@ -127,3 +127,23 @@ Get user information by `<email>`.
 | 200         | <pre>[<br> {<br> "email": string,<br> "nickname: string, <br> "school": string<br> "elo_rating": int<br> }<br>]</pre> | Information retrieval was successful. The response is a JSON array with one JSON object. |
 | 404         | "NO"                                                                                                                  | `<email>` is not in the database.                                                        |
 | 500         | `error`                                                                                                               | Internal Server Error                                                                    |
+
+---
+
+```
+DELETE /user/email/<email>
+```
+
+### Description
+
+Delete user with email `<email>`.
+
+### Response
+
+| Status Code | Response | Description                             |
+| ----------- | -------- | --------------------------------------- |
+| 200         | "YES"    | Successfully removed from the database. |
+| 404         | "NO"     | `<email>` is not in the database.       |
+| 500         | `error`  | Internal Server Error                   |
+
+---
