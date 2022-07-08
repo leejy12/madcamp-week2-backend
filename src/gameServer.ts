@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import qs from "qs";
-import { OmokPlayer, OmokGame } from "./omok.js";
+import { OmokPlayer, OmokGame, OmokMove, OmokMoveResult } from "./omok.js";
 import { v4 as uuidv4 } from "uuid";
 import { IncomingMessage, Server } from "http";
 
@@ -41,15 +41,35 @@ export default async (expressServer: Server) => {
         const player2 = waitingPlayers[waitingPlayers.length - 1];
         let game = new OmokGame(player1, player2);
         let gameId: string = uuidv4();
+
         console.log(gameId);
+
         games.set(gameId, game);
-        player1.webSocket.send(gameId);
-        player2.webSocket.send(gameId);
+
+        player1.webSocket.send(`{ "gameId": ${gameId}, "player": 1 }`);
+        player2.webSocket.send(`{ "gameId": ${gameId}, "player": 2 }`);
+
         waitingPlayers.splice(0, 2);
       }
-      console.log(waitingPlayers);
+      // console.log(waitingPlayers);
 
-      websocketConnection.on("message", (message) => {});
+      websocketConnection.on("message", (message) => {
+        let move: OmokMove = JSON.parse(message.toString());
+        let gameId: string = move["gameId"];
+
+        console.log(
+          `Player ${move["player"]} of game ${gameId} played move [${move["row"]}, ${move["col"]}]`
+        );
+
+        // websocketConnection.send(move["gameId"]);
+        let moveResult: OmokMoveResult = games.get(gameId)?.makeMove(move) as OmokMoveResult;
+        games.get(gameId)?.player1.webSocket.send(JSON.stringify(moveResult));
+        games.get(gameId)?.player2.webSocket.send(JSON.stringify(moveResult));
+
+        if (moveResult.status === 1 || moveResult.status === 2) {
+          console.log(`Player ${moveResult.status} won!`);
+        }
+      });
     }
   );
 
