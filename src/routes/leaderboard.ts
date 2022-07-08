@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { connection } from "../connection.js";
 
-const leaderboardRouter = Router();
+const leaderboardRouter: Router = Router();
 
 leaderboardRouter.get("/", (req, res) => {
   connection.query(
