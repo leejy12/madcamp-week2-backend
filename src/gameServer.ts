@@ -85,8 +85,8 @@ export default async (expressServer: Server) => {
             score1 = score2 = 0.5;
           }
 
-          newElo1 = oldElo1 + K * (score1 - expected1);
-          newElo2 = oldElo2 + K * (score2 - expected2);
+          newElo1 = Math.round(oldElo1 + K * (score1 - expected1));
+          newElo2 = Math.round(oldElo2 + K * (score2 - expected2));
 
           game.player1.webSocket.send(newElo1.toString());
           game.player2.webSocket.send(newElo2.toString());
