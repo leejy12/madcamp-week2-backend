@@ -1,8 +1,9 @@
 import { WebSocketServer, WebSocket } from "ws";
 import qs from "qs";
-import { OmokPlayer, OmokGame, OmokMove, OmokMoveResult } from "./omok.js";
+import { OmokPlayer, OmokGame, OmokMove, OmokMoveResult, K } from "./omok.js";
 import { v4 as uuidv4 } from "uuid";
 import { IncomingMessage, Server } from "http";
+import { connection } from "./connection.js";
 
 let games = new Map<string, OmokGame>(); // { gameId: OmokGame }
 let waitingPlayers: OmokPlayer[] = [];
@@ -56,6 +57,7 @@ export default async (expressServer: Server) => {
       websocketConnection.on("message", (message) => {
         let move: OmokMove = JSON.parse(message.toString());
         let gameId: string = move["gameId"];
+        let game: OmokGame = games.get(gameId) as OmokGame;
 
         console.log(
           `Player ${move["player"]} of game ${gameId} played move [${move["row"]}, ${move["col"]}]`
@@ -63,11 +65,38 @@ export default async (expressServer: Server) => {
 
         // websocketConnection.send(move["gameId"]);
         let moveResult: OmokMoveResult = games.get(gameId)?.makeMove(move) as OmokMoveResult;
-        games.get(gameId)?.player1.webSocket.send(JSON.stringify(moveResult));
-        games.get(gameId)?.player2.webSocket.send(JSON.stringify(moveResult));
+        game.player1.webSocket.send(JSON.stringify(moveResult));
+        game.player2.webSocket.send(JSON.stringify(moveResult));
 
-        if (moveResult.status === 1 || moveResult.status === 2) {
-          console.log(`Player ${moveResult.status} won!`);
+        if (moveResult.status !== 0) {
+          let oldElo1 = game.player1.elo_rating;
+          let oldElo2 = game.player2.elo_rating;
+          let newElo1, newElo2, score1, score2: number;
+          let expected1 = 1 / (1 + Math.pow(10, (oldElo2 - oldElo1) / 400));
+          let expected2 = 1 / (1 + Math.pow(10, (oldElo1 - oldElo2) / 400));
+
+          if (moveResult.status === 1) {
+            score1 = 1;
+            score2 = 0;
+          } else if (moveResult.status === 2) {
+            score1 = 0;
+            score2 = 1;
+          } else {
+            score1 = score2 = 0.5;
+          }
+
+          newElo1 = oldElo1 + K * (score1 - expected1);
+          newElo2 = oldElo2 + K * (score2 - expected2);
+
+          game.player1.webSocket.send(newElo1.toString());
+          game.player2.webSocket.send(newElo2.toString());
+
+          connection.query(
+            `UPDATE users SET elo_rating = ${newElo1} WHERE nickname = "${game.player1.nickname}";`
+          );
+          connection.query(
+            `UPDATE users SET elo_rating = ${newElo2} WHERE nickname = "${game.player2.nickname}";`
+          );
         }
       });
     }

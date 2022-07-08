@@ -35,8 +35,9 @@ userRouter.post("/signup/email/:email/nickname/:nickname/school/:school", (req, 
     (error, rows, fields) => {
       if (rows.length === 0) {
         // If it is a unique nickname, insert into database
+        // Starting ELO rating is 1500
         connection.query(
-          `INSERT INTO users VALUE(NULL, "${req.params.email}", "${req.params.nickname}", "${req.params.school}", 1000);`,
+          `INSERT INTO users VALUE(NULL, "${req.params.email}", "${req.params.nickname}", "${req.params.school}", 1500);`,
           (error, rows) => {
             if (error) res.status(500).send(error);
             else res.send("0");

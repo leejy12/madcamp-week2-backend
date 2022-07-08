@@ -6,6 +6,11 @@ import { WebSocket } from "ws";
 export const boardSize = 11;
 
 /**
+ * K-factor of ELO rating system.
+ */
+export const K = 20;
+
+/**
  * This interface describes a single move made by a player.
  *
  * `gameId`: UUID of the OmokGame
