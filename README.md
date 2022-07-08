@@ -74,6 +74,8 @@ npm run dev
 
 Note: `error` is the error message returned by MySQL.
 
+---
+
 ```
 GET /user/login/email/<email>
 ```
@@ -89,6 +91,8 @@ Checks if `<email>` is already registered.
 | 200         | "YES"    | `<email>` is already in the database. |
 | 404         | "NO"     | `<email>` is not in the database.     |
 | 500         | `error`  | Internal Server Error                 |
+
+---
 
 ```
 POST /user/signup/email/<email>/nickname/<nickname>/school/<school>
@@ -106,6 +110,8 @@ Sign up a new user. `<nickname>` must not be in the database at the time of sign
 | 400         | "1"      | `<nickname>` already exists in the database. |
 | 500         | `error`  | Internal Server Error                        |
 
+---
+
 ```
 GET /user/email/<email>
 ```
@@ -116,37 +122,8 @@ Get user information by `<email>`.
 
 ### Response
 
-<table>
-    <thead>
-        <tr>
-            <td>Status Code</td>
-            <td>Response</td>
-            <td>Description</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>200</td>
-            <td>
-            
-            ```json
-            {}
-            ```
-
-            </td>
-
-            <td>Information retrieval was successful.</td>
-        </tr>
-        <tr>
-            <td>404</td>
-            <td>"NO"</td>
-            <td><code>email</code> was not found in the database.</td>
-        </tr>
-        <tr>
-            <td>500</td>
-            <td><code>error</code></td>
-            <td>Internal Server Error</td>
-        </tr>
-    </tbody>
-
-</table>
+| Status Code | Response                                                                                                              | Description                                                                              |
+| ----------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 200         | <pre>[<br> {<br> "email": string,<br> "nickname: string, <br> "school": string<br> "elo_rating": int<br> }<br>]</pre> | Information retrieval was successful. The response is a JSON array with one JSON object. |
+| 404         | "NO"                                                                                                                  | `<email>` is not in the database.                                                        |
+| 500         | `error`                                                                                                               | Internal Server Error                                                                    |
