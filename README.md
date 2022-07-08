@@ -72,6 +72,6 @@ npm run dev
 
 ## API
 
-See [API.md]("https://github.com/leejy12/madcamp-week2-backend/API.md") for details.
+See [API.md](https://github.com/leejy12/madcamp-week2-backend/blob/master/API.md) for details.
 
 ---
