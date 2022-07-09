@@ -191,7 +191,13 @@ export class OmokGame {
       if (x === 1 || x === 2) return x;
     }
 
-    return 0;
+    for (let r = 0; r < boardSize; r++) {
+      for (let c = 0; c < boardSize; c++) {
+        if (this.board[r][c] === 0) return 0;
+      }
+    }
+
+    return 3;
   }
 
   reset() {
