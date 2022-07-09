@@ -60,11 +60,13 @@ export class OmokMoveResult {
 export class OmokPlayer {
   nickname: string;
   elo_rating: number;
+  school: string;
   webSocket: WebSocket;
 
-  constructor(nickname: string, elo_rating: number, webSocket: WebSocket) {
+  constructor(nickname: string, elo_rating: number, school: string, webSocket: WebSocket) {
     this.nickname = nickname;
     this.elo_rating = elo_rating;
+    this.school = school;
     this.webSocket = webSocket;
   }
 }

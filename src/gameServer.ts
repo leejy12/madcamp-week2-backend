@@ -31,6 +31,7 @@ export default async (expressServer: Server) => {
         new OmokPlayer(
           connectionParams["nickname"] as string,
           parseInt(connectionParams["elo_rating"] as string),
+          connectionParams["school"] as string,
           websocketConnection
         )
       );
@@ -47,8 +48,12 @@ export default async (expressServer: Server) => {
 
         games.set(gameId, game);
 
-        player1.webSocket.send(`{ "gameId": ${gameId}, "player": 1 }`);
-        player2.webSocket.send(`{ "gameId": ${gameId}, "player": 2 }`);
+        player1.webSocket.send(
+          `{ "gameId": ${gameId}, "player": 1 , "opponent": { "nickname": ${player2.nickname}, "elo_rating": ${player2.elo_rating}, "school": ${player2.school} }}`
+        );
+        player2.webSocket.send(
+          `{ "gameId": ${gameId}, "player": 2 , "opponent": { "nickname": ${player1.nickname}, "elo_rating": ${player1.elo_rating}, "school": ${player1.school} }}`
+        );
 
         waitingPlayers.splice(0, 2);
       }
