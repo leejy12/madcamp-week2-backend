@@ -36,8 +36,12 @@ export default async (expressServer: Server) => {
         )
       );
 
+      console.log(
+        `Player (${connectionParams["nickname"]}, ${connectionParams["elo_rating"]}, ${connectionParams["school"]}) has connected!`
+      );
+
       if (waitingPlayers.length % 2 === 1) {
-        websocketConnection.send("WAITING");
+        websocketConnection.send("{ \"type\": \"waiting\" }");
       } else {
         const player1 = waitingPlayers[waitingPlayers.length - 2];
         const player2 = waitingPlayers[waitingPlayers.length - 1];
@@ -49,10 +53,10 @@ export default async (expressServer: Server) => {
         games.set(gameId, game);
 
         player1.webSocket.send(
-          `{ "gameId": ${gameId}, "player": 1 , "opponent": { "nickname": ${player2.nickname}, "elo_rating": ${player2.elo_rating}, "school": ${player2.school} }}`
+          `{ "type": "gameFound", "gameId": "${gameId}", "player": 1 , "opponent": { "nickname": "${player2.nickname}", "elo_rating": ${player2.elo_rating}, "school": "${player2.school}" }}`
         );
         player2.webSocket.send(
-          `{ "gameId": ${gameId}, "player": 2 , "opponent": { "nickname": ${player1.nickname}, "elo_rating": ${player1.elo_rating}, "school": ${player1.school} }}`
+          `{ "type": "gameFound", "gameId": "${gameId}", "player": 2 , "opponent": { "nickname": "${player1.nickname}", "elo_rating": ${player1.elo_rating}, "school": "${player1.school}" }}`
         );
 
         waitingPlayers.splice(0, 2);
@@ -60,6 +64,14 @@ export default async (expressServer: Server) => {
       // console.log(waitingPlayers);
 
       websocketConnection.on("message", (message) => {
+        /**
+         * {
+         *   "gameId": uuid,
+         *   "player": 1 or 2,
+         *   "row": int,
+         *   "col": int
+         * }
+         */
         let move: OmokMove = JSON.parse(message.toString());
         let gameId: string = move["gameId"];
         let game: OmokGame = games.get(gameId) as OmokGame;
@@ -70,8 +82,8 @@ export default async (expressServer: Server) => {
 
         // websocketConnection.send(move["gameId"]);
         let moveResult: OmokMoveResult = games.get(gameId)?.makeMove(move) as OmokMoveResult;
-        game.player1.webSocket.send(JSON.stringify(moveResult));
-        game.player2.webSocket.send(JSON.stringify(moveResult));
+        game.player1.webSocket.send(`{ "type": "moveResult", "moveResult": ${JSON.stringify(moveResult)} }`);
+        game.player2.webSocket.send(`{ "type": "moveResult", "moveResult": ${JSON.stringify(moveResult)} }`);
 
         if (moveResult.status !== 0) {
           let oldElo1 = game.player1.elo_rating;
@@ -93,8 +105,8 @@ export default async (expressServer: Server) => {
           newElo1 = Math.round(oldElo1 + K * (score1 - expected1));
           newElo2 = Math.round(oldElo2 + K * (score2 - expected2));
 
-          game.player1.webSocket.send(newElo1.toString());
-          game.player2.webSocket.send(newElo2.toString());
+          game.player1.webSocket.send(`{ "type": "newRating", "rating": ${newElo1.toString()} }`);
+          game.player2.webSocket.send(`{ "type": "newRating", "rating": ${newElo2.toString()} }`);
 
           connection.query(
             `UPDATE users SET elo_rating = ${newElo1} WHERE nickname = "${game.player1.nickname}";`

@@ -4,6 +4,7 @@ import { connection } from "../connection.js";
 const userRouter: Router = Router();
 
 userRouter.get("/email/:email", (req, res) => {
+  console.log(`GET /user/email/${req.params.email}`);
   connection.query(
     `SELECT email, nickname, school, elo_rating FROM users WHERE email = "${req.params.email}";`,
     (error, rows, fields) => {
