@@ -94,19 +94,10 @@ export class OmokGame {
 
   makeMove(move: OmokMove): OmokMoveResult {
     // this logic should be handled in the client.
-    if (this.currentPlayer === move.player && this.board[move.row][move.col] === 0) {
-      this.board[move.row][move.col] = move.player;
-      this.currentPlayer = 3 - this.currentPlayer;
+    if (move.row >= 0 && move.col >= 0) this.board[move.row][move.col] = move.player;
+    this.currentPlayer = 3 - this.currentPlayer;
 
-      for (let i: number = 0; i < boardSize; i++) {
-        console.log(this.board[i].join(""));
-      }
-      console.log();
-
-      return new OmokMoveResult(move.player, move.row, move.col, this.checkWinner());
-    } else {
-      throw 1;
-    }
+    return new OmokMoveResult(move.player, move.row, move.col, this.checkWinner());
   }
 
   contiguousFive(arr: number[]): number {
