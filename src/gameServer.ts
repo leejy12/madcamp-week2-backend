@@ -34,9 +34,7 @@ export default async (expressServer: Server) => {
       )
     );
 
-    console.log(
-      `Player (${connectionParams["nickname"]}, ${connectionParams["elo_rating"]}, ${connectionParams["school"]}) has connected!`
-    );
+    console.log(`${connectionParams["nickname"]} has connected!`);
 
     if (waitingPlayers.length % 2 === 1) {
       websocketConnection.send('{ "type": "waiting" }');
@@ -125,6 +123,11 @@ export default async (expressServer: Server) => {
         connection.query(`UPDATE users SET elo_rating = ${newElo1} WHERE nickname = "${game.player1.nickname}";`);
         connection.query(`UPDATE users SET elo_rating = ${newElo2} WHERE nickname = "${game.player2.nickname}";`);
       }
+    });
+
+    websocketConnection.on("close", (code, reason) => {
+      console.log(`${reason.toString()} has disconnected!`);
+      waitingPlayers = waitingPlayers.filter((p) => p.nickname != reason.toString());
     });
   });
 
