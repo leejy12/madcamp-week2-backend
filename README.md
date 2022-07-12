@@ -99,6 +99,10 @@ Each row's `email` and `nickname` are unique.
 
 ## How the game works
 
+### Communication
+
+Communication between the server and clients are done via websockets. When a player presses '매칭' button, a new websocket connection is established. The conncection is closed when the game is over. Each player is represented by class `OmokPlayer`. Each `OmokPlayer` class has a websocket member variable. This individual websocket is used to send specific messages to each player.
+
 ### Game Matching
 
 The game server keeps track of waiting players in a list `waitingPlayers` defined in `src/gameServer.ts`. Whenever a new player is added and the length of the list is even, pop the first two players and create a new Game is created between those two. Of the two players, the one who was added to the list first is Black i.e. goes first.
@@ -107,4 +111,12 @@ A game instance is represented by the class `OmokGame`. Each game is given a uni
 
 ### Game Play
 
-Each player take turns making moves. A move is represented by the class `OmokMove`. After each move, the game server determines the state of the game (0: not over, 1: player 1 won, 2: player 2 won, 3: draw). The result of each move is represented by the class `OmokMoveResult`. This gets serialized and sent to both players after each move. When a game is ended, ELO ratings of each player gets updated in the DB and notified to each player.
+Each player take turns making moves. A move is represented by the class `OmokMove`. The move gets serialized into JSON and is sent from the client to the server. An `OmokMove` contains the gameId which is used by the server to correctly update the corresponding game. After each move, the game server determines the state of the game (0: not over, 1: player 1 won, 2: player 2 won, 3: draw). The result of each move is represented by the class `OmokMoveResult`. This gets serialized to JSON and sent to both players after each move. When a game is ended, ELO ratings of each player gets updated in the DB and notified to each player.
+A new player is initially given a ELO rating of 1500. The maximum possible change of the rating after one round is 20.
+
+---
+
+## Security
+
+There is absolutely NO PROTECTION against SQL injection attacks.
+There is absolutely NO ENCRYPTION of data being transmitted.
