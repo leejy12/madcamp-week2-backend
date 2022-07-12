@@ -122,6 +122,8 @@ export default async (expressServer: Server) => {
 
         connection.query(`UPDATE users SET elo_rating = ${newElo1} WHERE nickname = "${game.player1.nickname}";`);
         connection.query(`UPDATE users SET elo_rating = ${newElo2} WHERE nickname = "${game.player2.nickname}";`);
+
+        games.delete(gameId);
       }
     });
 
