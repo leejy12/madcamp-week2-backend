@@ -105,9 +105,9 @@ Communication between the server and clients are done via websockets. When a pla
 
 ### Game Matching
 
-The game server keeps track of waiting players in a list `waitingPlayers` defined in `src/gameServer.ts`. Whenever a new player is added and the length of the list is even, pop the first two players and create a new Game is created between those two. Of the two players, the one who was added to the list first is Black i.e. goes first.
+The game server keeps track of waiting players in a list `waitingPlayers` defined in `src/gameServer.ts`. When ever a new player establishes a websocket connection, the player is pushed to `waitingPlayers`. If the length of `waitingPlayers` is odd, the player is sent a "waiting" message. If the length of the list is even, we pop the first two players and create a new Game with those two. Of the two players, the one who was added to the list first plays Black i.e. goes first.
 
-A game instance is represented by the class `OmokGame`. Each game is given a unique UUID and stored in a map data structure.
+A game instance is represented by the class `OmokGame`. Each game is given a unique UUID and stored in a map data structure. When a game ends, it is removed from this map.
 
 ### Game Play
 
